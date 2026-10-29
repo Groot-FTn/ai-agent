@@ -28,16 +28,12 @@ schema_write_file = {
             "type": "object",
             "required": ["file_path", "content"],
             "properties": {
-                "directory": {
-                    "type": "string",
-                    "description": "Directory path to list files from, relative to the working directory (default is the working directory itself)",
                 "file_path": {
                     "type": "string",
                     "description": "Name of the file thats the user is trying to write the content into",
                 "content": {
                     "type": "string",
                     "description": "Content passed by the user to be writed in a file",
-                },
                 },
                 },
             },

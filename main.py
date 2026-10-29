@@ -1,6 +1,7 @@
 import os
 import argparse
 import json
+import sys
 from prompts import system_prompt
 from call_functions import available_functions, call_function
 from dotenv import load_dotenv
@@ -24,32 +25,39 @@ messages = [
     {"role": "user", "content": args.user_prompt}
 ]
 
-response = client.chat.completions.create(
-    model="openrouter/free",
-    messages=messages,
-    tools=available_functions
-    # temperature=0,
-)
-
 def main():
 
-    if response.usage == None:
-        raise RuntimeError("API request failed, try again after a few seconds.")
-    if response.usage != None and args.verbose == True:
-        print(f"User prompt: {messages[0]["content"]}")
-        print(f"Prompt tokens: {response.usage.prompt_tokens}")
-        print(f"Response tokens: {response.usage.completion_tokens}")
+    for _ in range(20):
 
-    message = response.choices[0].message
+        response = client.chat.completions.create(
+            model="openrouter/free",
+            messages=messages,
+            tools=available_functions
+            # temperature=0,
+        )
 
-    if message.tool_calls:
-        for tool_call in message.tool_calls:
-            result_message = call_function(tool_call, args.verbose)
-            if not result_message.get("content"):
-                raise Exception("Error: Content not found")
-            if args.verbose:
-                print(f"-> {result_message['content']}")
-    print(f"Response:\n{message.content}")
+        if response.usage == None:
+            raise RuntimeError("API request failed, try again after a few seconds.")
+        if response.usage != None and args.verbose == True:
+            print(f"User prompt: {messages[1]["content"]}")
+            print(f"Prompt tokens: {response.usage.prompt_tokens}")
+            print(f"Response tokens: {response.usage.completion_tokens}")
+        message = response.choices[0].message
+        messages.append(message)
+        if message.tool_calls:
+            for tool_call in message.tool_calls:
+                result_message = call_function(tool_call, args.verbose)
+                if not result_message.get("content"):
+                    raise Exception("Error: Content not found")
+                if args.verbose:
+                    print(f"-> {result_message['content']}")
+                messages.append(result_message)
+        else:
+            print(f"Response:\n{message.content}")
+            break
+    else:
+        print("Error: the number of iterations reached it's limit, the model cannot produce a final response")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

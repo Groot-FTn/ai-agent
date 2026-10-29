@@ -46,9 +46,6 @@ schema_run_python_file = {
             "type": "object",
             "required": ["file_path"],
             "properties": {
-                "directory": {
-                    "type": "string",
-                    "description": "Directory path to list files from, relative to the working directory (default is the working directory itself)",
                 "file_path": {
                     "type": "string",
                     "description": "Name of the python file thats the user is trying to run",
@@ -56,7 +53,6 @@ schema_run_python_file = {
                     "type": "array",
                     "items": "string",
                     "description": "Array whose items are string, serves to define more arguments to run the file",
-                },
                 },
                 },
             },
